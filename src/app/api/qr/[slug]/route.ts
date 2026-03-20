@@ -15,7 +15,9 @@ export async function GET(
     margin: 2,
   });
 
-  return new NextResponse(buffer, {
+  const body = new Uint8Array(buffer);
+
+  return new NextResponse(body, {
     headers: {
       'Content-Type': 'image/png',
       'Content-Disposition': `inline; filename="${slug}-qr.png"`,
