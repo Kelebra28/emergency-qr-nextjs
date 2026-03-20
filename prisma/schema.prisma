@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  person       Person?
+}
+
+model Person {
+  id                Int                @id @default(autoincrement())
+  userId            Int                @unique
+  slug              String             @unique
+  firstName         String
+  lastName          String
+  bloodType         String?
+  allergies         String?            @db.Text
+  medicalNotes      String?            @db.Text
+  medications       String?            @db.Text
+  photoUrl          String?            @db.Text
+  showBloodType     Boolean            @default(true)
+  showAllergies     Boolean            @default(true)
+  showMedicalNotes  Boolean            @default(true)
+  showMedications   Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emergencyContacts EmergencyContact[]
+  fieldSettings     PersonFieldSetting[]
+}
+
+model EmergencyContact {
+  id           Int      @id @default(autoincrement())
+  personId     Int
+  name         String
+  relationship String?
+  phone        String
+  phoneAlt     String?
+  createdAt    DateTime @default(now())
+
+  person       Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+model PersonFieldSetting {
+  id        Int      @id @default(autoincrement())
+  personId  Int
+  fieldKey  String
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, fieldKey])
+}
